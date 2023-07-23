@@ -1,8 +1,6 @@
 ﻿@page "/"
+@inherits Components.IndexBase
 @attribute [Authorize]
-
-@using Chinook.Models
-@using Microsoft.EntityFrameworkCore
 
 <PageTitle>Index</PageTitle>
 
@@ -16,6 +14,11 @@ else
 {
     <table class="table table-striped table-hover table-sm">
         <thead>
+            <tr>
+                <td>
+                    <input class="..." value="@SearchText" @oninput="SearchArtists" placeholder="Search by artist" />
+                </td>
+            </tr>
             <tr>
                 <th>Name</th>
                 <th>Number of albums</th>
@@ -31,28 +34,4 @@ else
             }
         </tbody>
     </table>
-}
-
-@code {
-    private List<Artist> Artists;
-    [Inject] IDbContextFactory<ChinookContext> DbFactory { get; set; }
-
-    protected override async Task OnInitializedAsync() {
-        await InvokeAsync(StateHasChanged);
-        Artists = await GetArtists();
-    }
-
-    public async Task<List<Artist>> GetArtists()
-    {   
-        var dbContext = await DbFactory.CreateDbContextAsync();
-        var users = dbContext.Users.Include(a => a.UserPlaylists).ToList();
-        
-        return dbContext.Artists.ToList();
-    }
-
-    public async Task<List<Album>> GetAlbumsForArtist(int artistId)
-    {
-        var dbContext = await DbFactory.CreateDbContextAsync();
-        return dbContext.Albums.Where(a => a.ArtistId == artistId).ToList();
-    }
 }
